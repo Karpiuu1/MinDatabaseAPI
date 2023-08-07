@@ -25,7 +25,7 @@ namespace MinDatabaseAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult GetCustomerById(int id) 
         {
-            var customer = _customerService.GetAddressesByCustomerId(id);
+            var customer = _customerService.GetCustomerById(id);
             if (customer == null)
             {
                 return NotFound();
