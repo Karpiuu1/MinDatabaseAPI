@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using MinDatabaseAPI.Services;
+using MinDatabaseAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<DatabaseConfigurationService>();
 builder.Services.AddScoped<SqlCustomerService>();
+builder.Services.AddDbContext<CustomerDbContext>
+    (options => options.UseSqlServer(builder.Configuration.GetConnectionString("MinDatabaseConnection")));
+builder.Services.AddScoped<EfCustomerService>();
 builder.Services.AddControllers();
+
 
 var app = builder.Build();
 
