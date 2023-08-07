@@ -6,7 +6,7 @@ using MinDatabaseAPI.Models;
 namespace MinDatabaseAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/customer")]
     public class CustomersController : ControllerBase
     {
         private readonly SqlCustomerService _customerService;

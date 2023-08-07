@@ -38,7 +38,7 @@ namespace MinDatabaseAPI.Services
         {
             using IDbConnection db = new SqlConnection(_connectionString);
             const string query = @"
-                INSERT INTO Customers (FirstName, LastName, Username, Password, Role
+                INSERT INTO Customers (FirstName, LastName, Username, Password, Role)
                 VALUES (@FirstName, @LastName, @Username, @Password, @Role);
                 SELECT CAST (SCOPE_IDENTITY() AS INT)";
             return db.Query<int>(query, customer).Single();
@@ -57,7 +57,7 @@ namespace MinDatabaseAPI.Services
             }
         }
 
-        public void DeleteCustomer(int addressId)
+        public void DeleteAddress(int addressId)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
             const string query = @"DELTE FROM Addresses WHERE Id = @AddressId";

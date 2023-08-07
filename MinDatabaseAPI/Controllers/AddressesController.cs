@@ -6,7 +6,7 @@ using MinDatabaseAPI.Models;
 namespace MinDatabaseAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/address")]
     public class AddressesController : ControllerBase
     {
         private readonly SqlCustomerService _customerService;
@@ -27,7 +27,7 @@ namespace MinDatabaseAPI.Controllers
             return Ok();
         }
 
-        [HttpDelete("{customerId")]
+        [HttpDelete("{customerId}")]
         public IActionResult DeleteAddress(int addressId)
         {
             _customerService.DeleteAddress(addressId);

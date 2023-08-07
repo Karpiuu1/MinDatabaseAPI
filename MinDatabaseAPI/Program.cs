@@ -1,3 +1,8 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using MinDatabaseAPI.Services;
 
@@ -6,10 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
-var connectionString = "Server=(localdb)\\mssqllocaldb;Database=MinDatabase;Trusted_Connection=True;";
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IDatabaseConfigService, DatabaseConfigService>();
+builder.Services.AddSingleton<DatabaseConfigurationService>();
+builder.Services.AddScoped<SqlCustomerService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
