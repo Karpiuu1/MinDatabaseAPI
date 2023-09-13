@@ -16,17 +16,18 @@ namespace MinDatabaseAPI.Services
             _connectionString = configService.GetConnectionString();
         }
 
-        public IEnumerable<Customer> GetAllCustomers()
+        public IEnumerable<Administration> GetAllCustomers()
         {
             using IDbConnection db = new SqlConnection(_connectionString);
-            return db.Query<Customer>("SELECT * FROM Customers");
+            return db.Query<Administration>("SELECT * FROM Customers");
         }
 
-        public Customer GetCustomerById(int id)
+        public Administration GetCustomerById(int id)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
-            return db.QuerySingleOrDefault<Customer>("SELECT * FROM Customers WHERE Id = @Id", new {Id = id});
+            return db.QuerySingleOrDefault<Administration>("SELECT * FROM Customers WHERE Id = @Id", new { Id = id });
         }
+
 
         public IEnumerable<Address> GetAddressesByCustomerId(int customerId)
         {
@@ -34,7 +35,7 @@ namespace MinDatabaseAPI.Services
             return db.Query<Address>("SELECT * FROM Addresses WHERE CustomerId = @CustomerId", new {CustomerId = customerId});
         }
 
-        public int InsertCustomer(Customer customer)
+        public int InsertCustomer(Administration customer)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
             const string query = @"

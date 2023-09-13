@@ -14,46 +14,48 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MinDatabaseAPI;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
-
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
-
-var authenticationSettings = new AuthenticationSettings();
-
-builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
-
-builder.Services.AddAuthentication(options =>
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
 {
-    options.DefaultAuthenticateScheme = "Bearer";
-    options.DefaultScheme = "Bearer";
-    options.DefaultChallengeScheme = "Bearer";
-}).AddJwtBearer(cfg =>
-{
-    cfg.RequireHttpsMetadata = false;
-    cfg.SaveToken = true;
-    cfg.TokenValidationParameters = new TokenValidationParameters
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        ValidIssuer = authenticationSettings.JwtIssuer,
-        ValidAudience = authenticationSettings.JwtIssuer,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
-    };
+        Description = "Standard Authorization header using the bearer scheme (\"Bearer {token}\")",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
 
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<DatabaseConfigurationService>();
-builder.Services.AddSingleton<AuthenticationSettings>();
-builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SqlCustomerService>();
+builder.Services.AddScoped<SqlAdministrationService>();
 builder.Services.AddDbContext<CustomerDbContext>
     (options => options.UseSqlServer(builder.Configuration.GetConnectionString("MinDatabaseConnection")));
 builder.Services.AddScoped<EfCustomerService>();
-builder.Services.AddControllers();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+               .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
+    });
 
 
 var app = builder.Build();
@@ -65,14 +67,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseRouting();
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+
 app.UseAuthorization();
+
 app.UseEndpoints(endpoints =>
     {
         endpoints.MapControllers();
     });
-app.UseAuthentication();
-app.UseHttpsRedirection();
-
 
 app.Run();
 

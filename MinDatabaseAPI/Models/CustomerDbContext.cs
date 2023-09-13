@@ -10,7 +10,7 @@ namespace MinDatabaseAPI.Models
         {
         }
 
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Administration> Customers { get; set; }
         public DbSet<Address> Addresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

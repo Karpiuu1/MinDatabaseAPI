@@ -43,7 +43,7 @@ namespace MinDatabaseAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCustomer(Customer customer)
+        public IActionResult AddCustomer(Administration customer)
         {
             if (!ModelState.IsValid)
             {
