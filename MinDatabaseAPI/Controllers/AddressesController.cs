@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MinDatabaseAPI.Services;
 using MinDatabaseAPI.Models;
-
+using System.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MinDatabaseAPI.Controllers
 {
@@ -17,6 +18,7 @@ namespace MinDatabaseAPI.Controllers
         }
 
         [HttpPost("{customerId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddAddresses(int customerId, IEnumerable<Address> addresses)
         {
             if(!ModelState.IsValid)
@@ -28,6 +30,7 @@ namespace MinDatabaseAPI.Controllers
         }
 
         [HttpDelete("{customerId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteAddress(int addressId)
         {
             _customerService.DeleteAddress(addressId);

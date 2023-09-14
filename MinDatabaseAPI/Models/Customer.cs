@@ -7,17 +7,13 @@
         public string LastName { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public byte[] PasswordHash { get; set; }
-        public byte[] PasswordSalt { get; set; }
         public string Role { get; set; }
+        public int AddressId { get; set; }
+
+     //  public Address CustomerAddress { get; set; }    
+
+       
     }
 
-    public class Address
-    {
-        public int Id { get; set; }
-        public int CustomerId { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public string PostalCode { get; set; }
-    }
+    
 }

@@ -35,7 +35,7 @@ namespace MinDatabaseAPI.Services
             return db.Query<Address>("SELECT * FROM Addresses WHERE CustomerId = @CustomerId", new {CustomerId = customerId});
         }
 
-        public int InsertCustomer(Administration customer)
+        public int InsertCustomer(Customer customer)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
             const string query = @"
@@ -63,6 +63,13 @@ namespace MinDatabaseAPI.Services
             using IDbConnection db = new SqlConnection(_connectionString);
             const string query = @"DELTE FROM Addresses WHERE Id = @AddressId";
             db.Execute(query, new {AddressId = addressId});
+        }
+
+        public void DeleteCustomer(int customerId)
+        {
+            using IDbConnection db = new SqlConnection(_connectionString);
+            const string query = @"DELETE FROM Customers WHERE Id = @CustomerId";
+            db.Execute(query, new {CustomerId = customerId});
         }
     }
 }

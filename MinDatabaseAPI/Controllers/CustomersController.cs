@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MinDatabaseAPI.Services;
 using MinDatabaseAPI.Models;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace MinDatabaseAPI.Controllers
 {
@@ -39,7 +39,8 @@ namespace MinDatabaseAPI.Controllers
             return Ok(addresses);
         }
         [HttpPost]
-        public IActionResult AddCustomer(Administration customer)
+        [Authorize(Roles = "Admin")]
+        public IActionResult AddCustomer(Customer customer)
         {
             if (!ModelState.IsValid)
             {
@@ -47,6 +48,20 @@ namespace MinDatabaseAPI.Controllers
             }
             var newCustomerId = _customerService.InsertCustomer(customer);
             return CreatedAtAction(nameof(GetCustomerById), new {id = newCustomerId}, customer);
+        }
+        [HttpDelete]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteCustomer(int id)
+        {
+            var customer = _customerService.GetCustomerById(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            _customerService.DeleteCustomer(id);
+
+            return NoContent();
+
         }
     }
 }
