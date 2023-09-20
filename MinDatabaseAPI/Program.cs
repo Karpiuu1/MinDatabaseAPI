@@ -16,6 +16,8 @@ using MinDatabaseAPI;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using MinDatabaseAPI.Interface;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddSingleton<DatabaseConfigurationService>();
 builder.Services.AddScoped<SqlCustomerService>();
 builder.Services.AddScoped<SqlAdministrationService>();
+builder.Services.AddScoped<ILoggerService, FileLoggerService>();
 builder.Services.AddDbContext<CustomerDbContext>
     (options => options.UseSqlServer(builder.Configuration.GetConnectionString("MinDatabaseConnection")));
 builder.Services.AddScoped<EfCustomerService>();

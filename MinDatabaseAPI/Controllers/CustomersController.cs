@@ -2,18 +2,22 @@
 using MinDatabaseAPI.Services;
 using MinDatabaseAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using MinDatabaseAPI.Interface;
 
 namespace MinDatabaseAPI.Controllers
 {
     [ApiController]
     [Route("api/customer")]
+
     public class CustomersController : ControllerBase
     {
         private readonly SqlCustomerService _customerService;
+        private readonly ILoggerService _logger;
 
-        public CustomersController(SqlCustomerService customerService)
+        public CustomersController(SqlCustomerService customerService, ILoggerService logger)
         {
             _customerService = customerService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -23,14 +27,25 @@ namespace MinDatabaseAPI.Controllers
             return Ok(customers);
         }
         [HttpGet("{id}")]
-        public IActionResult GetCustomerById(int id) 
+        public IActionResult GetCustomerById(int id)
         {
-            var customer = _customerService.GetCustomerById(id);
-            if (customer == null)
+            try
             {
-                return NotFound();
+                var customer = _customerService.GetCustomerById(id);
+
+                if (customer == null)
+                {
+                    _logger.LogError($"Customer not found with ID: {id}");
+                    return NotFound();
+                }
+
+                return Ok(customer);
             }
-            return Ok(customer);
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in GetCustomerById: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
         [HttpGet("{customerId}/addresses")]
         public IActionResult GetAddressesByCustomerId(int customerId)
@@ -46,22 +61,41 @@ namespace MinDatabaseAPI.Controllers
             {
                 return BadRequest();
             }
-            var newCustomerId = _customerService.InsertCustomer(customer);
-            return CreatedAtAction(nameof(GetCustomerById), new {id = newCustomerId}, customer);
+            try
+            {
+
+                var newCustomerId = _customerService.InsertCustomer(customer);
+                return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomerId }, customer);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in AddCustomer: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteCustomer(int id)
         {
-            var customer = _customerService.GetCustomerById(id);
-            if (customer == null)
+            try
             {
-                return NotFound();
+                var customer = _customerService.GetCustomerById(id);
+
+                if (customer == null)
+                {
+                    _logger.LogError($"Customer not found with ID: {id}");
+                    return NotFound();
+                }
+
+                _customerService.DeleteCustomer(id);
+
+                return NoContent();
             }
-            _customerService.DeleteCustomer(id);
-
-            return NoContent();
-
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in DeleteCustomer: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
     }
 }

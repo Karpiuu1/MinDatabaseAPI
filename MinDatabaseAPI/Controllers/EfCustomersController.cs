@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MinDatabaseAPI.Interface;
 using MinDatabaseAPI.Models;
 using MinDatabaseAPI.Services;
 using System.Collections.Generic;
@@ -11,10 +12,12 @@ namespace MinDatabaseAPI.Controllers
     public class EfCustomersController : ControllerBase
     {
         private readonly EfCustomerService _customerService;
+        private readonly ILoggerService _logger;
 
-        public EfCustomersController(EfCustomerService customerService)
+        public EfCustomersController(EfCustomerService customerService, ILoggerService logger)
         {
             _customerService = customerService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -27,12 +30,23 @@ namespace MinDatabaseAPI.Controllers
         [HttpGet("{id}")]
         public IActionResult GetCustomerById(int id)
         {
-            var customer = _customerService.GetCustomerById(id);
-            if (customer == null)
+            try
             {
-                return NotFound();
+                var customer = _customerService.GetCustomerById(id);
+
+                if (customer == null)
+                {
+                    _logger.LogError($"Customer not found with ID: {id}");
+                    return NotFound();
+                }
+
+                return Ok(customer);
             }
-            return Ok(customer);
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in GetCustomerById: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
 
         [HttpGet("{customerId}/addresses")]
@@ -43,14 +57,24 @@ namespace MinDatabaseAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCustomer(Administration customer)
+        public IActionResult AddCustomer(Customer customer)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest();
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("Invalid model state in AddCustomer.");
+                    return BadRequest();
+                }
+
+                var newCustomerId = _customerService.InsertCustomer(customer);
+                return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomerId }, customer);
             }
-            var newCustomerId = _customerService.InsertCustomer(customer);
-            return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomerId }, customer);
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in AddCustomer: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
     }
 }

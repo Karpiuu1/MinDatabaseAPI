@@ -3,6 +3,7 @@ using MinDatabaseAPI.Services;
 using MinDatabaseAPI.Models;
 using System.Data;
 using Microsoft.AspNetCore.Authorization;
+using MinDatabaseAPI.Interface;
 
 namespace MinDatabaseAPI.Controllers
 {
@@ -11,22 +12,34 @@ namespace MinDatabaseAPI.Controllers
     public class AddressesController : ControllerBase
     {
         private readonly SqlCustomerService _customerService;
+        private readonly ILoggerService _logger;
 
-        public AddressesController(SqlCustomerService customerService)
+        public AddressesController(SqlCustomerService customerService, ILoggerService logger)
         {
             _customerService = customerService;
+            _logger = logger;
         }
 
         [HttpPost("{customerId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult AddAddresses(int customerId, IEnumerable<Address> addresses)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                _logger.LogError("Invalid model state in AddAddresses.");
                 return BadRequest();
             }
-            _customerService.InsertAddresses(customerId, addresses);
-            return Ok();
+
+            try
+            {
+                _customerService.InsertAddresses(customerId, addresses);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in AddAddresses: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
 
         [HttpDelete("{customerId}")]

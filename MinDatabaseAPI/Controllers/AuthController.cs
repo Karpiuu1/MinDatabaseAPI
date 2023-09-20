@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MinDatabaseAPI.Interface;
 using MinDatabaseAPI.Models;
 using MinDatabaseAPI.Services;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,12 +18,14 @@ namespace MinDatabaseAPI.Controllers
         public static Administration administration = new Administration();
         private readonly IConfiguration _configuration;
         private readonly SqlAdministrationService _administrationService;
+        private readonly ILoggerService _logger;
 
 
-        public AuthController(IConfiguration configuration, SqlAdministrationService administrationService)
+        public AuthController(IConfiguration configuration, SqlAdministrationService administrationService, ILoggerService logger)
         {
             _configuration = configuration;
             _administrationService = administrationService;
+            _logger = logger;
         }
 
         [HttpPost("register")]
@@ -52,27 +55,40 @@ namespace MinDatabaseAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest("Error while making new user");
+                //return BadRequest("Error while making new user");
+                _logger.LogError($"Error in register endpoint: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
             }
         }
 
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login (LoginDto request)
+        public async Task<ActionResult<string>> Login(LoginDto request)
         {
-            var user = _administrationService.GetAdministrationByUsername(request.Username);
-
-            if (user == null) 
+            try
             {
-                return BadRequest("User not found.");
-            }
-            if(!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt)) 
-            {
-                return BadRequest("Wrong Password.");
-            }
-            var token = CreateToken(user);
-            return Ok(token);
+                var user = _administrationService.GetAdministrationByUsername(request.Username);
 
+                if (user == null)
+                {
+                    _logger.LogError($"User not found: {request.Username}");
+                    return BadRequest("User not found.");
+                }
+
+                if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+                {
+                    _logger.LogError($"Wrong Password for user: {request.Username}");
+                    return BadRequest("Wrong Password.");
+                }
+
+                var token = CreateToken(user);
+                return Ok(token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in Login: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
         }
 
 

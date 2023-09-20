@@ -13,12 +13,12 @@ namespace MinDatabaseAPI.Services
             _dbContext = dbContext;   
         }
 
-        public IEnumerable<Administration> GetAllCustomers() 
+        public IEnumerable<Customer> GetAllCustomers() 
         {
             return _dbContext.Customers.ToList();        
         }
 
-        public Administration GetCustomerById(int id)
+        public Customer GetCustomerById(int id)
         {
             return _dbContext.Customers.SingleOrDefault(c => c.Id == id);
         }
@@ -28,12 +28,13 @@ namespace MinDatabaseAPI.Services
             return _dbContext.Addresses.Where(a => a.CustomerId == customerId).ToList();
         }
 
-        public int InsertCustomer(Administration customer)
+        public int InsertCustomer(Customer customer)
         {
             _dbContext.Customers.Add(customer);
             _dbContext.SaveChanges();
             return customer.Id;
         }
+
 
         public void InsertAddresses(int customerId, IEnumerable<Address> addresses)
         {
