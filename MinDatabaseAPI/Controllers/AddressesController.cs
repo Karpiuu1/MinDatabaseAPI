@@ -24,14 +24,15 @@ namespace MinDatabaseAPI.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult AddAddresses(int customerId, IEnumerable<Address> addresses)
         {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state in AddAddresses.");
-                return BadRequest();
-            }
-
             try
             {
+
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("Invalid model state in AddAddresses.");
+                    return BadRequest();
+                }
+
                 _customerService.InsertAddresses(customerId, addresses);
                 return Ok();
             }

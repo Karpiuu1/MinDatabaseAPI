@@ -15,7 +15,10 @@ namespace MinDatabaseAPI.Services
 
         public IEnumerable<Customer> GetAllCustomers() 
         {
-            return _dbContext.Customers.ToList();        
+            var customers = _dbContext.Customers.ToList();
+            
+          
+            return customers;
         }
 
         public Customer GetCustomerById(int id)
@@ -55,5 +58,6 @@ namespace MinDatabaseAPI.Services
                 _dbContext.SaveChanges();
             }
         }
+
     }
 }

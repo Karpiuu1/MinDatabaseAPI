@@ -16,16 +16,16 @@ namespace MinDatabaseAPI.Services
             _connectionString = configService.GetConnectionString();
         }
 
-        public IEnumerable<Administration> GetAllCustomers()
+        public IEnumerable<Customer> GetAllCustomers()
         {
             using IDbConnection db = new SqlConnection(_connectionString);
-            return db.Query<Administration>("SELECT * FROM Customers");
+            return db.Query<Customer>("SELECT * FROM Customers");
         }
 
-        public Administration GetCustomerById(int id)
+        public Customer GetCustomerById(int id)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
-            return db.QuerySingleOrDefault<Administration>("SELECT * FROM Customers WHERE Id = @Id", new { Id = id });
+            return db.QuerySingleOrDefault<Customer>("SELECT * FROM Customers WHERE Id = @Id", new { Id = id });
         }
 
 
@@ -61,7 +61,7 @@ namespace MinDatabaseAPI.Services
         public void DeleteAddress(int addressId)
         {
             using IDbConnection db = new SqlConnection(_connectionString);
-            const string query = @"DELTE FROM Addresses WHERE Id = @AddressId";
+            const string query = @"DELETE FROM Addresses WHERE AddressId = @AddressId";
             db.Execute(query, new {AddressId = addressId});
         }
 

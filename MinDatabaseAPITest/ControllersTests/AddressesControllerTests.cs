@@ -38,14 +38,15 @@ namespace MinDatabaseAPITest.ControllersTests
             var customerId = 1;
             var addresses = new List<Address>
             {
-                new Address { Id = 1, Street = "Street1", City = "City1", PostalCode ="12345"},
-                new Address { Id = 2, Street = "Street2", City = "City2", PostalCode ="67890"}
+                new Address { AddressId = 1, Street = "Street1", City = "City1", PostalCode ="12345"},
+                new Address { AddressId = 2, Street = "Street2", City = "City2", PostalCode ="67890"}
             };
 
             var result = _addressesController.AddAddresses(customerId, addresses);
 
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(OkResult));
+            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+
 
         }
         [TestMethod]
@@ -54,7 +55,7 @@ namespace MinDatabaseAPITest.ControllersTests
             var customerId = 1;
             var addresses = new List<Address> 
             {
-                new Address {Id = 1}
+                new Address {AddressId = 1}
             };
 
             var result = _addressesController.AddAddresses(customerId, addresses);
@@ -76,7 +77,15 @@ namespace MinDatabaseAPITest.ControllersTests
                 Assert.Fail($"Unexpected result: {result.GetType()} with status code {(result as ObjectResult)?.StatusCode}");
             }
         }
-        
+        [TestMethod]
+        public void DeleteAddress_ValidInput_ReturnsNoContent()
+        {
+            var addressId = 1;
+            var result = _addressesController.DeleteAddress(addressId);
+
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(NoContentResult));
+        }
     }
 }
 

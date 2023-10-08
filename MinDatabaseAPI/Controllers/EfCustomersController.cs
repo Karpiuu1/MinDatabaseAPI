@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MinDatabaseAPI.Interface;
 using MinDatabaseAPI.Models;
 using MinDatabaseAPI.Services;
 using System.Collections.Generic;
+using System.Data;
 
 
 namespace MinDatabaseAPI.Controllers
@@ -57,15 +59,17 @@ namespace MinDatabaseAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddCustomer(Customer customer)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state in AddCustomer.");
+                return BadRequest();
+            }
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogError("Invalid model state in AddCustomer.");
-                    return BadRequest();
-                }
+                
 
                 var newCustomerId = _customerService.InsertCustomer(customer);
                 return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomerId }, customer);
@@ -73,6 +77,21 @@ namespace MinDatabaseAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Error in AddCustomer: {ex.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+        [HttpDelete("{addressId}")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteAddress(int addressId)
+        {
+            try
+            {
+                _customerService.DeleteAddress(addressId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in DeleteAddress: {ex.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }

@@ -10,7 +10,8 @@ namespace MinDatabaseAPI.Services
 
         public FileLoggerService() 
         {
-            logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "errors.log");
+            string baseDirectory = @"D:\Repos\MinDatabaseAPI";
+            logFilePath = Path.Combine(baseDirectory, "errors.log");
         }
 
         public void LogError(string message)
